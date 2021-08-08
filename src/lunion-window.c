@@ -34,7 +34,6 @@ struct _LunionWindow
 	GtkWidget* m_box;
 	GtkWidget* m_viewgrid;
 	GtkWidget* m_viewlist;
-	GtkWidget* m_viewoption;
 
 	GtkWidget* m_appoption;
 };
@@ -50,18 +49,13 @@ enum lunion_menu_add_position
 
 enum lunion_menu_position
 {
+	LUNION_DOWNLOAD_COVER,
+	LUNION_INSTALLED_CHECK,
+	LUNION_HIDDEN_CHECK,
 	LUNION_PREFERENCES,
 	LUNION_KEYBOARD_SHORTCUT,
 	LUNION_ABOUT,
 	LUNION_QUIT
-};
-
-
-enum lunion_menu_view_position
-{
-	LUNION_DOWNLOAD_COVER,
-	LUNION_INSTALLED_CHECK,
-	LUNION_HIDDEN_CHECK
 };
 
 
@@ -91,44 +85,43 @@ static GMenuModel* lunion_header_bar_build_addmenu (void)
 static GMenuModel* lunion_header_bar_build_appmenu (void)
 {
 	GMenu* menu = g_menu_new ();
-	GMenuItem* item = NULL;
-
-	item = g_menu_item_new("Preferences", "app.none");
-	g_menu_insert_item (menu, LUNION_PREFERENCES, item);
-	g_object_unref (item);
-
-	item = g_menu_item_new("Keyboard Shortcuts", "app.none");
-	g_menu_insert_item (menu, LUNION_KEYBOARD_SHORTCUT, item);
-	g_object_unref (item);
-
-	item = g_menu_item_new ("About Lunion", "app.about");
-	g_menu_insert_item (menu, LUNION_ABOUT, item);
-	g_object_unref (item);
-
-	item = g_menu_item_new ("Quit", "app.quit");
-	g_menu_insert_item (menu, LUNION_QUIT, item);
-	g_object_unref (item);
-
-	return G_MENU_MODEL (menu);
-}
-
-
-static GMenuModel* lunion_header_bar_build_viewmenu (void)
-{
-	GMenu* menu = g_menu_new ();
+	GMenu* section = g_menu_new ();
 	GMenuItem* item = NULL;
 
 	item = g_menu_item_new("Download game covers", "app.none");
-	g_menu_insert_item (menu, LUNION_DOWNLOAD_COVER, item);
+	g_menu_insert_item (section, LUNION_DOWNLOAD_COVER, item);
 	g_object_unref (item);
 
 	item = g_menu_item_new("Installed games", "app.none");
-	g_menu_insert_item (menu, LUNION_INSTALLED_CHECK, item);
+	g_menu_insert_item (section, LUNION_INSTALLED_CHECK, item);
 	g_object_unref (item);
 
 	item = g_menu_item_new("Hidden games", "app.none");
-	g_menu_insert_item (menu, LUNION_HIDDEN_CHECK, item);
+	g_menu_insert_item (section, LUNION_HIDDEN_CHECK, item);
 	g_object_unref (item);
+
+	g_menu_append_section (menu, NULL, G_MENU_MODEL(section));
+	g_object_unref (section);
+	section = g_menu_new ();
+
+	item = g_menu_item_new("Preferences", "app.none");
+	g_menu_insert_item (section, LUNION_PREFERENCES, item);
+	g_object_unref (item);
+
+	item = g_menu_item_new("Keyboard Shortcuts", "app.none");
+	g_menu_insert_item (section, LUNION_KEYBOARD_SHORTCUT, item);
+	g_object_unref (item);
+
+	item = g_menu_item_new ("About Lunion", "app.about");
+	g_menu_insert_item (section, LUNION_ABOUT, item);
+	g_object_unref (item);
+
+	item = g_menu_item_new ("Quit", "app.quit");
+	g_menu_insert_item (section, LUNION_QUIT, item);
+	g_object_unref (item);
+
+	g_menu_append_section (menu, NULL, G_MENU_MODEL(section));
+	g_object_unref (section);
 
 	return G_MENU_MODEL (menu);
 }
@@ -152,11 +145,6 @@ static void lunion_window_init_headerbar (LunionWindow* self)
 
 	gtk_box_append (GTK_BOX (self->m_box), self->m_viewgrid);
 	gtk_box_append (GTK_BOX (self->m_box), self->m_viewlist);
-	gtk_box_append (GTK_BOX (self->m_box), self->m_viewoption);
-	gtk_widget_add_css_class (self->m_box, "linked");
-	gtk_widget_add_css_class (gtk_widget_get_first_child (self->m_viewoption), "disclosure-button");
-
-	gtk_menu_button_set_menu_model (GTK_MENU_BUTTON (self->m_viewoption), lunion_header_bar_build_viewmenu ());
 
 	gtk_menu_button_set_menu_model (GTK_MENU_BUTTON (self->m_appoption), lunion_header_bar_build_appmenu ());
 	gtk_menu_button_set_direction (GTK_MENU_BUTTON (self->m_appoption), GTK_ARROW_NONE);
@@ -173,7 +161,6 @@ static void lunion_window_init (LunionWindow* self)
 	self->m_box = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
 	self->m_viewgrid = gtk_button_new_from_icon_name ("view-grid-symbolic");
 	self->m_viewlist = gtk_button_new_from_icon_name ("view-list-symbolic");
-	self->m_viewoption = gtk_menu_button_new ();
 	self->m_appoption = gtk_menu_button_new ();
 
 	adw_application_window_set_child (ADW_APPLICATION_WINDOW (self), self->m_mainview);
@@ -188,7 +175,6 @@ static void lunion_window_init (LunionWindow* self)
 	gtk_widget_show (self->m_box);
 	gtk_widget_hide (self->m_viewgrid);
 	gtk_widget_show (self->m_viewlist);
-	gtk_widget_show (self->m_viewoption);
 	gtk_widget_show (self->m_appoption);
 }
 

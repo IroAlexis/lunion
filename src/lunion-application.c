@@ -26,7 +26,6 @@
 struct _LunionApplication
 {
 	GtkApplication m_parent;
-	GdkDisplay*    m_display;
 
 	GtkWidget*     m_mainwindow;
 };
@@ -66,7 +65,6 @@ static void lunion_application_action_quit (GSimpleAction *action, GVariant *par
 {
 	LunionApplication* self = LUNION_APPLICATION (user_data);
 
-	gdk_display_close (self->m_display);
 	g_application_quit (G_APPLICATION (self));
 }
 
@@ -79,7 +77,6 @@ static void lunion_application_startup (GApplication* app)
 
 	adw_init();
 
-	self->m_display = gdk_display_get_default ();
 	self->m_mainwindow = lunion_application_create_window (self);
 }
 
@@ -122,21 +119,9 @@ static void lunion_application_init (LunionApplication* self)
 GtkWidget* lunion_application_create_window (LunionApplication* self)
 {
 	GtkWidget* mainwindow;
-	GtkCssProvider* cssProvider;
-	GFile* cssProviderFile;
-
-	// TODO Check error
-	cssProviderFile = g_file_new_for_path ("src/lunion.css");
-
-	// Load our css theme
-	cssProvider = gtk_css_provider_new ();
-	gtk_css_provider_load_from_file (cssProvider, cssProviderFile);
-	gtk_style_context_add_provider_for_display (self->m_display, GTK_STYLE_PROVIDER (cssProvider), GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
 
 	// Window
 	mainwindow = lunion_window_new (self);
-
-	g_object_unref (cssProviderFile);
 
 	return mainwindow;
 }
